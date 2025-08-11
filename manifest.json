@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Memolink",
+  "version": "1.0",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "background": { "service_worker": "background.js" },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "128": "default_icon.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["toolbar.css"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

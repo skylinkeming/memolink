@@ -1,0 +1,28 @@
+.my-highlight {
+  cursor: pointer;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+.highlight-toolbar {
+  position: absolute;
+  background: white;
+  border: 1px solid #ddd;
+  padding: 4px;
+  display: flex;
+  gap: 4px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  z-index: 999999;
+}
+
+.highlight-toolbar button,
+.highlight-toolbar input[type=color] {
+  cursor: pointer;
+  border: none;
+  padding: 4px;
+  background: none;
+}
+.highlight-toolbar button:hover {
+  background: #eee;
+}
