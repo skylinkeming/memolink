@@ -29,13 +29,15 @@ function showToolbar(range) {
 
   toolbar.querySelector("#colorPicker").oninput = (e) =>
     (styles.color = e.target.value);
+  toolbar.querySelector("#colorPicker").onclick = () => {
+    applyHighlight(range, styles);
+  };
   toolbar.querySelector("#boldBtn").onclick = () =>
     (styles.bold = !styles.bold);
   toolbar.querySelector("#italicBtn").onclick = () =>
     (styles.italic = !styles.italic);
   toolbar.querySelector("#noteBtn").onclick = () => {
     styles.note = prompt("輸入筆記（可留空）") || "";
-    applyHighlight(range, styles);
     removeToolbar();
   };
 }
@@ -46,6 +48,7 @@ function removeToolbar() {
 
 function applyHighlight(range, styles) {
   const span = document.createElement("span");
+  console.log(range);
   span.className = "my-highlight";
   span.textContent = range.toString();
   span.style.backgroundColor = styles.color;
