@@ -44,6 +44,8 @@
       });
 
       function showToolbar(range) {
+        removeExistingToolbar();
+
         toolbar = document.createElement("div");
         toolbar.className = "highlight-toolbar";
         toolbar.innerHTML = `
@@ -59,25 +61,30 @@
 
         //綁定點擊事件
         document.querySelector("#colorBtn").addEventListener("click", () => {
-          debugger;
-          applyColor();
+          changeSelectionColor("yellow");
         });
       }
 
-      function applyColor() {
-        if (!currentRange) return;
+      function removeExistingToolbar() {
+        if (toolbar) {
+          document.body.removeChild(toolbar);
+          toolbar = null;
+        }
+      }
 
-        // 創建一個新的 span 節點
-        const span = document.createElement("span");
-        span.style.backgroundColor = "yellow"; // 設置背景顏色
-        span.textContent = selectedObj.toString(); // 設置選取的文字
-
-        // 刪除選取範圍的內容，並插入新的 span 節點
-        currentRange.deleteContents();
-        currentRange.insertNode(span);
-
-        // 清除選取範圍
-        window.getSelection().removeAllRanges();
+      function changeSelectionColor(color) {
+        if (selectedObj) {
+          const selection = selectedObj;
+          if (selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            const span = document.createElement("span");
+            span.style.backgroundColor = color; // 設置背景顏色
+            // span.style.borderBottom = "2px solid " + color; // 設置底部邊框顏色
+            currentRange.surroundContents(span);
+            selection.removeAllRanges();
+            selection.addRange(range);
+          }
+        }
       }
     </script>
 
