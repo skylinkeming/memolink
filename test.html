@@ -40,6 +40,8 @@
         if (!selectedObj.isCollapsed) {
           currentRange = selectedObj.getRangeAt(0);
           showToolbar(currentRange);
+        } else {
+          removeExistingToolbar();
         }
       });
 
@@ -52,6 +54,8 @@
                 <div id="colorBtn"></div>
                 <div id="noteBtn"></div>
             `;
+
+        toolbar.addEventListener("mouseup", (e) => e.stopPropagation()); // 阻止事件冒泡
         //定位
         const rect = range.getBoundingClientRect();
         toolbar.style.top = `${window.scrollY + rect.top - 40}px`;
