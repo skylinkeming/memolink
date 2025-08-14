@@ -24,6 +24,22 @@
         height: 20px;
         background: yellow;
       }
+        #boldBtn {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+        #italicBtn {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-style: italic;
+        }
     </style>
   </head>
   <body>
@@ -31,6 +47,9 @@
       let selectedObj = null;
       let currentRange = null;
       let toolbar = null;
+      let selectionStyle = {
+
+      };
 
       //綁定滑鼠放開事件
       document.addEventListener("mouseup", () => {
@@ -52,6 +71,8 @@
         toolbar.className = "highlight-toolbar";
         toolbar.innerHTML = `
                 <div id="colorBtn"></div>
+                <div id="boldBtn">B</div>
+                <div id="italicBtn">U</div>
                 <div id="noteBtn"></div>
             `;
 
@@ -65,7 +86,13 @@
 
         //綁定點擊事件
         document.querySelector("#colorBtn").addEventListener("click", () => {
-          changeSelectionColor("yellow");
+          changeSelectionStyle({ backgroundColor: "yellow" });
+        });
+        document.querySelector("#boldBtn").addEventListener("click", () => {
+          changeSelectionStyle({ fontWeight: "bold" });
+        });
+        document.querySelector("#italicBtn").addEventListener("click", () => {
+          changeSelectionStyle({ fontStyle: "italic" });
         });
       }
 
@@ -76,13 +103,31 @@
         }
       }
 
-      function changeSelectionColor(color) {
+      function changeSelectionStyle({ backgroundColor, fontWeight, fontStyle }) {
+        if (backgroundColor) {
+          selectionStyle.backgroundColor = backgroundColor;
+        }
+        if (fontWeight) {
+          selectionStyle.fontWeight = fontWeight;
+        }
+        if (fontStyle) {
+          selectionStyle.fontStyle = fontStyle;
+        }
+
         if (selectedObj) {
           const selection = selectedObj;
           if (selection.rangeCount > 0) {
             const range = selection.getRangeAt(0);
             const span = document.createElement("span");
-            span.style.backgroundColor = color; // 設置背景顏色
+            if (selectionStyle.backgroundColor) {
+              span.style.backgroundColor = selectionStyle.backgroundColor;
+            }
+            if (selectionStyle.fontWeight) {
+              span.style.fontWeight = selectionStyle.fontWeight;
+            }
+            if (selectionStyle.fontStyle) {
+              span.style.fontStyle = selectionStyle.fontStyle;
+            }
             // span.style.borderBottom = "2px solid " + color; // 設置底部邊框顏色
             currentRange.surroundContents(span);
             selection.removeAllRanges();
