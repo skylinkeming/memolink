@@ -23,23 +23,26 @@
         width: 20px;
         height: 20px;
         background: yellow;
+        cursor: pointer;
       }
-        #boldBtn {
-            width: 20px;
-            height: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-        }
-        #italicBtn {
-            width: 20px;
-            height: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-style: italic;
-        }
+      #boldBtn {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      #italicBtn {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-style: italic;
+        cursor: pointer;
+      }
     </style>
   </head>
   <body>
@@ -47,9 +50,16 @@
       let selectedObj = null;
       let currentRange = null;
       let toolbar = null;
-      let selectionStyle = {
-
-      };
+      let highlightData = [
+        {
+          id: "",
+          text: "",
+          color: "",
+          fontWeight: "",
+          fontStyle: "",
+        },
+      ];
+      let selectionStyle = {};
 
       //綁定滑鼠放開事件
       document.addEventListener("mouseup", () => {
@@ -103,7 +113,11 @@
         }
       }
 
-      function changeSelectionStyle({ backgroundColor, fontWeight, fontStyle }) {
+      function changeSelectionStyle({
+        backgroundColor,
+        fontWeight,
+        fontStyle,
+      }) {
         if (backgroundColor) {
           selectionStyle.backgroundColor = backgroundColor;
         }
@@ -133,6 +147,57 @@
             selection.removeAllRanges();
             selection.addRange(range);
           }
+        }
+
+        saveHighlightData();
+      }
+
+      function generateUUID() {
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+          /[xy]/g,
+          function (c) {
+            var r = (Math.random() * 16) | 0,
+              v = c == "x" ? r : (r & 0x3) | 0x8;
+            return v.toString(16);
+          },
+        );
+      }
+
+      function saveHighlightData() {
+        const highlight = {
+          updatedAt: new Date().toLocaleString(),
+          text: selectedObj.toString(),
+          color: selectionStyle.backgroundColor || "",
+          fontWeight: selectionStyle.fontWeight || "",
+          fontStyle: selectionStyle.fontStyle || "",
+        };
+        if (localStorage.getItem("highlightData")) {
+          highlightData = JSON.parse(localStorage.getItem("highlightData"));
+          let existingData = highlightData.find(
+            (item) => item.id === highlight.id,
+          );
+          if (existingData) {
+            let existingData = {
+              ...existingData,
+              ...highlight,
+            };
+          } else {
+            highlightData.push({
+              id: generateUUID(),
+              ...highlight,
+              createdAt: new Date().toLocaleString(),
+            });
+          }
+          localStorage.setItem("highlightData", JSON.stringify(highlightData));
+        } else {
+          highlightData = [
+            {
+              id: generateUUID(),
+              ...highlight,
+              createdAt: new Date().toLocaleString(),
+            },
+          ];
+          localStorage.setItem("highlightData", JSON.stringify(highlightData));
         }
       }
     </script>
