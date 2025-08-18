@@ -43,174 +43,38 @@
         font-style: italic;
         cursor: pointer;
       }
+
+      ::highlight(underline-yellow) {
+        color: yellow;
+        text-decoration: underline;
+      }
     </style>
   </head>
   <body>
-    <script>
-      let selectedObj = null;
-      let currentRange = null;
-      let toolbar = null;
-      let highlightData = [
-        {
-          id: "",
-          text: "",
-          color: "",
-          fontWeight: "",
-          fontStyle: "",
-        },
-      ];
-      let selectionStyle = {};
-
-      //綁定滑鼠放開事件
-      document.addEventListener("mouseup", () => {
-        console.log("mouse up");
-
-        selectedObj = window.getSelection();
-        if (!selectedObj.isCollapsed) {
-          currentRange = selectedObj.getRangeAt(0);
-          showToolbar(currentRange);
-        } else {
-          removeExistingToolbar();
-        }
-      });
-
-      function showToolbar(range) {
-        removeExistingToolbar();
-
-        toolbar = document.createElement("div");
-        toolbar.className = "highlight-toolbar";
-        toolbar.innerHTML = `
-                <div id="colorBtn"></div>
-                <div id="boldBtn">B</div>
-                <div id="italicBtn">U</div>
-                <div id="noteBtn"></div>
-            `;
-
-        toolbar.addEventListener("mouseup", (e) => e.stopPropagation()); // 阻止事件冒泡
-        //定位
-        const rect = range.getBoundingClientRect();
-        toolbar.style.top = `${window.scrollY + rect.top - 40}px`;
-        toolbar.style.left = `${window.scrollX + rect.left}px`;
-
-        document.body.appendChild(toolbar);
-
-        //綁定點擊事件
-        document.querySelector("#colorBtn").addEventListener("click", () => {
-          changeSelectionStyle({ backgroundColor: "yellow" });
-        });
-        document.querySelector("#boldBtn").addEventListener("click", () => {
-          changeSelectionStyle({ fontWeight: "bold" });
-        });
-        document.querySelector("#italicBtn").addEventListener("click", () => {
-          changeSelectionStyle({ fontStyle: "italic" });
-        });
-      }
-
-      function removeExistingToolbar() {
-        if (toolbar) {
-          document.body.removeChild(toolbar);
-          toolbar = null;
-        }
-      }
-
-      function changeSelectionStyle({
-        backgroundColor,
-        fontWeight,
-        fontStyle,
-      }) {
-        if (backgroundColor) {
-          selectionStyle.backgroundColor = backgroundColor;
-        }
-        if (fontWeight) {
-          selectionStyle.fontWeight = fontWeight;
-        }
-        if (fontStyle) {
-          selectionStyle.fontStyle = fontStyle;
-        }
-
-        if (selectedObj) {
-          const selection = selectedObj;
-          if (selection.rangeCount > 0) {
-            const range = selection.getRangeAt(0);
-            const span = document.createElement("span");
-            if (selectionStyle.backgroundColor) {
-              span.style.backgroundColor = selectionStyle.backgroundColor;
-            }
-            if (selectionStyle.fontWeight) {
-              span.style.fontWeight = selectionStyle.fontWeight;
-            }
-            if (selectionStyle.fontStyle) {
-              span.style.fontStyle = selectionStyle.fontStyle;
-            }
-            // span.style.borderBottom = "2px solid " + color; // 設置底部邊框顏色
-            currentRange.surroundContents(span);
-            selection.removeAllRanges();
-            selection.addRange(range);
-          }
-        }
-
-        saveHighlightData();
-      }
-
-      function generateUUID() {
-        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
-          /[xy]/g,
-          function (c) {
-            var r = (Math.random() * 16) | 0,
-              v = c == "x" ? r : (r & 0x3) | 0x8;
-            return v.toString(16);
-          },
-        );
-      }
-
-      function saveHighlightData() {
-        const highlight = {
-          updatedAt: new Date().toLocaleString(),
-          text: selectedObj.toString(),
-          color: selectionStyle.backgroundColor || "",
-          fontWeight: selectionStyle.fontWeight || "",
-          fontStyle: selectionStyle.fontStyle || "",
-        };
-        if (localStorage.getItem("highlightData")) {
-          highlightData = JSON.parse(localStorage.getItem("highlightData"));
-          let existingData = highlightData.find(
-            (item) => item.id === highlight.id,
-          );
-          if (existingData) {
-            let existingData = {
-              ...existingData,
-              ...highlight,
-            };
-          } else {
-            highlightData.push({
-              id: generateUUID(),
-              ...highlight,
-              createdAt: new Date().toLocaleString(),
-            });
-          }
-          localStorage.setItem("highlightData", JSON.stringify(highlightData));
-        } else {
-          highlightData = [
-            {
-              id: generateUUID(),
-              ...highlight,
-              createdAt: new Date().toLocaleString(),
-            },
-          ];
-          localStorage.setItem("highlightData", JSON.stringify(highlightData));
-        }
-      }
-    </script>
-
-    Chapter 1: What Is JavaScript? You don't know JS, yet. Neither do I, not
-    fully anyway. None of us do. But we can all start getting to know JS better.
-    In this first chapter of the first book of the You Don't Know JS Yet
-    (YDKJSY) series, we will take some time to build a foundation to move
-    forward on. We need to start by covering a variety of important background
-    housekeeping details, clearing up some myths and misconceptions about what
-    the language really is (and isn't!). This is valuable insight into the
-    identity and process of how JS is organized and maintained; all JS
-    developers should understand it. If you want to get to know JS, this is how
-    to get started taking the first steps in that journey.
+    <script type="module" src="./test.js"></script>
+    <p>
+      Chapter 1: What Is JavaScript? You don't know JS, yet. Neither do I, not
+      fully anyway. None of us do. But we can all start getting to know JS
+      better. In this first chapter of the first book of the You Don't Know JS
+      Yet (YDKJSY) series, we will take some time to build a foundation to move
+      forward on. We need to start by covering a variety of important background
+      housekeeping details, clearing up some myths and misconceptions about what
+      the language really is (and isn't!). This is valuable insight into the
+      identity and process of how JS is organized and maintained; all JS
+      developers should understand it. If you want to get to know JS, this is
+      how to get started taking the first steps in that journey.
+    </p>
+    <p>
+      Chapter 1: What Is JavaScript? You don't know JS, yet. Neither do I, not
+      fully anyway. None of us do. But we can all start getting to know JS
+      better. In this first chapter of the first book of the You Don't Know JS
+      Yet (YDKJSY) series, we will take some time to build a foundation to move
+      forward on. We need to start by covering a variety of important background
+      housekeeping details, clearing up some myths and misconceptions about what
+      the language really is (and isn't!). This is valuable insight into the
+      identity and process of how JS is organized and maintained; all JS
+      developers should understand it. If you want to get to know JS, this is
+      how to get started taking the first steps in that journey.
+    </p>
   </body>
 </html>
