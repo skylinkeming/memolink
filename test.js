@@ -186,38 +186,98 @@ function getStoredDataAndApplyHighlight() {
   });
 }
 
+const applySpanStyle = (span, { color, fontWeight, fontStyle }) => {
+  if (color) {
+    span.style.backgroundColor = color;
+  }
+  if (fontStyle) {
+    span.style.fontStyle = fontStyle;
+  }
+  if (fontWeight) {
+    span.style.fontWeight = fontWeight;
+  }
+};
+
 function addHighlightStyle(range, h) {
   const span = document.createElement("span");
   span.id = h.id;
 
-  const changeSpanStyle = (span, { color, fontWeight, fontStyle }) => {
-    if (h.color) {
-      span.style.backgroundColor = color;
-    }
-    if (h.fontStyle) {
-      span.style.fontStyle = fontStyle;
-    }
-    if (h.fontWeight) {
-      span.style.fontWeight = fontWeight;
-    }
-  };
+  let startContainer = range.startContainer;
+  let endContainer = range.endContainer;
+  const startOffset = range.startOffset;
+  const endOffset = range.endOffset;
 
-  changeSpanStyle(span, h);
+  //處理沒有跨節點的選取
+  if (startContainer === endContainer) {
+    const span = document.createElement("span");
+    span.id = crypto.randomUUID();
+    applySpanStyle(span, h);
+    try {
+      range.surroundContents(span);
+    } catch (e) {
+      const textContent = startContainer.textContent;
+      const before = document.createTextNode(
+        textContent.substring(0, startOffset)
+      );
+      const highlightedText = document.createTextNode(
+        textContent.substring(startOffset, endOffset)
+      );
+      const after = document.createTextNode(textContent.substring(endOffset));
 
-  //   span.classList.add("highlight");
-  try {
-    //用span元素包住選取的內容
-    range.surroundContents(span);
-  } catch (e) {
-    // 處理無法直接包圍的複雜範圍
-    const frag = range.extractContents();
-    const newSpan = document.createElement("span");
-    newSpan.id = h.id;
-    // newSpan.classList.add("highlight");
-    changeSpanStyle(newSpan, h);
-    newSpan.appendChild(frag);
-    range.insertNode(newSpan);
+      const parent = startContainer.parentNode;
+      parent.insertBefore(before, startContainer);
+      parent.insertBefore(span, startContainer);
+      span.appendChild(highlightedText);
+      parent.insertBefore(after, startContainer);
+      parent.removeChild(startContainer);
+    }
+    return;
   }
+
+  // 處理跨節點選取 treeWalker:節點導遊
+  const treeWalker = document.createTreeWalker(
+    range.commonAncestorContainer, //從選取範圍的共同祖先節點開始
+    NodeFilter.SHOW_TEXT, // 節點過濾器:只顯示文字節點
+    {
+      acceptNode: function (node) {
+        // 針對節點的檢查站
+
+        // 是否位於選取範圍內
+        const intersection =
+          range.comparePoint(node, 0) <= 0 &&
+          range.comparePoint(node, node.length) >= 0;
+
+        return intersection ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+      },
+    }
+  );
+  // => 會得到一個treewalker物件 裡面只會包含完全位於選取範圍內的文字節點
+
+  //再把這些文字節點push到array裡面
+  const nodesToHighlight = [];
+  let node;
+  while ((node = treeWalker.nextNode())) {
+    nodesToHighlight.push(node);
+  }
+
+  nodesToHighlight.forEach((node) => {
+    console.log(node);
+    const subRange = document.createRange();
+    if (node === startContainer) {
+      subRange.setStart(node, startOffset);
+      subRange.setEnd(node, node.length);
+    } else if (node === endContainer) {
+      subRange.setStart(node, 0);
+      subRange.setEnd(node, endOffset);
+    } else {
+      subRange.selectNodeContents(node);
+    }
+
+    const span = document.createElement("span");
+    span.id = h.id;
+    applySpanStyle(span, h);
+    subRange.surroundContents(span);
+  });
 }
 
 function saveHighlightData(highlight) {
