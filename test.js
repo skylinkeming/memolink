@@ -115,18 +115,8 @@ function changeSelectionStyle({ backgroundColor, fontWeight, fontStyle }) {
   if (currentSelection) {
     const selection = currentSelection;
 
-    highlightData = JSON.parse(localStorage.getItem("highlightData"));
-    let storedSameIdHighlight;
-    if (!highlightData) {
-      highlightData = [];
-    } else {
-      storedSameIdHighlight = highlightData.find(
-        (h) => h.id == getSelectionSpanId(),
-      );
-    }
     const highlight = {
       createdAt: new Date().toLocaleString(),
-      ...(storedSameIdHighlight ? storedSameIdHighlight : {}),
       updatedAt: new Date().toLocaleString(),
       text: currentSelection.toString(),
       color: backgroundColor,
@@ -157,7 +147,7 @@ const getNodeFromData = (xpath, textIndex) => {
       document,
       null,
       XPathResult.FIRST_ORDERED_NODE_TYPE,
-      null,
+      null
     );
     const parentNode = result.singleNodeValue;
     if (!parentNode) {
@@ -180,10 +170,11 @@ const getNodeFromData = (xpath, textIndex) => {
 
 function getStoredDataAndApplyHighlight() {
   highlightData = JSON.parse(localStorage.getItem("highlightData"));
+  if (!highlightData) return;
   highlightData.forEach((h) => {
     const startNode = getNodeFromData(
       h.anchor.start.xpath,
-      h.anchor.start.textIndex,
+      h.anchor.start.textIndex
     );
     const endNode = getNodeFromData(h.anchor.end.xpath, h.anchor.end.textIndex);
     if (startNode && endNode) {
