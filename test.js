@@ -85,32 +85,6 @@ function removeExistingToolbar() {
   }
 }
 
-function getSelectionSpanId() {
-  const selection = window.getSelection();
-  if (selection.rangeCount > 0) {
-    const range = selection.getRangeAt(0);
-    let node = range.commonAncestorContainer;
-
-    // 從選取範圍的共同祖先節點往上尋找
-    while (node && node !== contentArea) {
-      // 檢查節點類型，並確認它是一個 `<span>` 且有 ID
-      if (
-        node.nodeType === Node.ELEMENT_NODE &&
-        node.tagName === "SPAN" &&
-        node.id
-      ) {
-        // 如果找到，就可以取用它的 ID
-        const highlightId = node.id;
-        console.log("找到了重點的 ID:", highlightId);
-        // 這裡你可以使用這個 ID 來做後續的動作，例如刪除或修改
-        break;
-      }
-      // 繼續往父節點尋找
-      node = node.parentNode;
-    }
-  }
-}
-
 function changeSelectionStyle({ backgroundColor, fontWeight, fontStyle }) {
   if (currentSelection) {
     const selection = currentSelection;
@@ -171,7 +145,8 @@ const getNodeFromData = (xpath, textIndex) => {
 function getStoredDataAndApplyHighlight() {
   highlightData = JSON.parse(localStorage.getItem("highlightData"));
   if (!highlightData) return;
-  highlightData.forEach((h) => {
+
+  const rangesToBeApplyHighlight = highlightData.map((h) => {
     const startNode = getNodeFromData(
       h.anchor.start.xpath,
       h.anchor.start.textIndex
@@ -181,7 +156,16 @@ function getStoredDataAndApplyHighlight() {
       const range = document.createRange();
       range.setStart(startNode, h.anchor.start.offset);
       range.setEnd(endNode, h.anchor.end.offset);
-      addHighlightStyle(range, h);
+      debugger;
+      return range;
+    }
+  });
+
+  rangesToBeApplyHighlight.forEach((range, index) => {
+    if (range) {
+      addHighlightStyle(range, highlightData[index]);
+    } else {
+      console.log("missing range", highlightData[index], index);
     }
   });
 }
