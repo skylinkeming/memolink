@@ -125,8 +125,10 @@ const getNodeFromData = (xpath, textIndex) => {
     );
     const parentNode = result.singleNodeValue;
     if (!parentNode) {
+      console.warn("XPath not found:", xpath);
       return null;
     }
+
     let count = 0;
     for (const child of parentNode.childNodes) {
       if (child.nodeType === Node.TEXT_NODE) {
@@ -136,8 +138,9 @@ const getNodeFromData = (xpath, textIndex) => {
         count++;
       }
     }
+    console.warn("Text node index not found:", textIndex, "in", xpath);
   } catch (e) {
-    console.error("Failed to get node from XPath:", e);
+    console.error("Failed to get node from XPath:", xpath, e);
   }
   return null;
 };
@@ -146,26 +149,37 @@ function getStoredDataAndApplyHighlight() {
   highlightData = JSON.parse(localStorage.getItem("highlightData"));
   if (!highlightData) return;
 
-  const rangesToBeApplyHighlight = highlightData.map((h) => {
+  // 先按照複雜度排序：跨標籤的先處理
+  const sortedData = highlightData.sort((a, b) => {
+    const aIsCrossTag = a.anchor.start.xpath !== a.anchor.end.xpath; //若選取的起始位置跟結束位置不同 即為跨標籤選取
+    const bIsCrossTag = b.anchor.start.xpath !== b.anchor.end.xpath;
+
+    if (aIsCrossTag && !bIsCrossTag) return -1; // -1: 照原a,b順序處理
+    if (!aIsCrossTag && bIsCrossTag) return 1; // 1: 先處理後面:前後顛倒
+    return 0;
+  });
+
+  sortedData.forEach((h, idx) => {
     const startNode = getNodeFromData(
       h.anchor.start.xpath,
       h.anchor.start.textIndex
     );
     const endNode = getNodeFromData(h.anchor.end.xpath, h.anchor.end.textIndex);
+    console.log({
+      idx,
+      startNode,
+      endNode,
+    });
+
     if (startNode && endNode) {
       const range = document.createRange();
-      range.setStart(startNode, h.anchor.start.offset);
-      range.setEnd(endNode, h.anchor.end.offset);
-      debugger;
-      return range;
-    }
-  });
-
-  rangesToBeApplyHighlight.forEach((range, index) => {
-    if (range) {
-      addHighlightStyle(range, highlightData[index]);
-    } else {
-      console.log("missing range", highlightData[index], index);
+      try {
+        range.setStart(startNode, h.anchor.start.offset);
+        range.setEnd(endNode, h.anchor.end.offset);
+        addHighlightStyle(range, h);
+      } catch (e) {
+        console.warn("Failed to restore highlight:", h.text, e);
+      }
     }
   });
 }
