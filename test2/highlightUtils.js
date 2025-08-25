@@ -69,6 +69,7 @@ export function getSelectedTextChunks() {
 
   // 遍歷所有複製出來的子節點
   fragment.childNodes.forEach((node) => {
+    console.log({ node });
     // 檢查節點的類型
     if (node.nodeType === Node.ELEMENT_NODE) {
       // 如果是 HTML 元素（如 <p>, <h2>），取出其包含的所有文字
@@ -83,47 +84,6 @@ export function getSelectedTextChunks() {
   return textChunks.filter((chunk) => chunk.length > 0);
 }
 
-/**
- * 從選取範圍中取得精準的定位資料。
- * @param {Selection} selection - 使用者的選取物件
- * @returns {object|null} 包含所有定位資訊的物件，如果選取無效則為 null。
- */
-function getHighlightLocationData(selection) {
-  if (selection.rangeCount === 0) {
-    return null;
-  }
-
-  const range = selection.getRangeAt(0);
-  const startNode = range.startContainer;
-  const parentElement = startNode.parentNode;
-
-  // 1. 產生父元素的選擇器
-  const parentSelector = generateCSSSelector(parentElement);
-
-  // 2. 計算起始文字節點的索引
-  let startNodeIndex = 0;
-  let child = parentElement.firstChild;
-  while (child) {
-    if (child === startNode) {
-      break;
-    }
-    child = child.nextSibling;
-    startNodeIndex++;
-  }
-
-  // 3. 取得起始與結束的字元偏移量
-  const startOffset = range.startOffset;
-  const endOffset = range.endOffset;
-  const highlightedText = range.toString();
-
-  return {
-    text: highlightedText,
-    parentSelector: parentSelector,
-    startNodeIndex: startNodeIndex,
-    startOffset: startOffset,
-    endOffset: endOffset,
-  };
-}
 
 /**
  * 產生CSS選擇器路徑
@@ -188,7 +148,7 @@ export function getHighlightLocationData(selection) {
   const parentElement = startNode.parentNode;
 
   // 1. 產生父元素的選擇器
-  const parentSelector = generateCSSSelector(parentElement);
+  const parentSelector = generateCSSSelectorPath(parentElement);
 
   // 2. 計算起始文字節點的索引
   let startNodeIndex = 0;
@@ -225,7 +185,7 @@ export function getHighlightLocationData(selection) {
  * 根據定位資料重新高亮指定的文字。
  * @param {object} locationData - 包含所有定位資訊的物件。
  */
-function reHighlightFromData(locationData) {
+export function reHighlightFromData(locationData) {
   const { parentSelector, startNodeIndex, startOffset, endOffset } =
     locationData;
 
