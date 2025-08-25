@@ -130,7 +130,7 @@ function getHighlightLocationData(selection) {
  * @param {HTMLElement} el - 要產生選擇器的 DOM 元素
  * @returns {string} 該元素的 CSS Selector 字串
  */
-function generateCSSSelectorPath(el) {
+export function generateCSSSelectorPath(el) {
   // 如果元素沒有了，或不是有效的元素，直接回傳空字串
   if (!el || el.nodeType !== Node.ELEMENT_NODE) {
     return "";
@@ -172,3 +172,108 @@ function generateCSSSelectorPath(el) {
 
   return parts.join(" > ");
 }
+
+/**
+ * 從選取範圍中取得精準的定位資料。
+ * @param {Selection} selection - 使用者的選取物件
+ * @returns {object|null} 包含所有定位資訊的物件，如果選取無效則為 null。
+ */
+export function getHighlightLocationData(selection) {
+  if (selection.rangeCount === 0) {
+    return null;
+  }
+
+  const range = selection.getRangeAt(0);
+  const startNode = range.startContainer;
+  const parentElement = startNode.parentNode;
+
+  // 1. 產生父元素的選擇器
+  const parentSelector = generateCSSSelector(parentElement);
+
+  // 2. 計算起始文字節點的索引
+  let startNodeIndex = 0;
+  let child = parentElement.firstChild;
+  while (child) {
+    if (child === startNode) {
+      break;
+    }
+    child = child.nextSibling;
+    startNodeIndex++;
+  }
+
+  // 3. 取得起始與結束的字元偏移量
+  const startOffset = range.startOffset;
+  const endOffset = range.endOffset;
+  const highlightedText = range.toString();
+
+  return {
+    text: highlightedText,
+    parentSelector: parentSelector,
+    startNodeIndex: startNodeIndex,
+    startOffset: startOffset,
+    endOffset: endOffset,
+  };
+}
+
+// 使用範例：
+// 假設使用者選取了某個 "the"
+// const selection = window.getSelection();
+// const locationData = getHighlightLocationData(selection);
+// console.log("要儲存的定位資料：", locationData);
+
+/**
+ * 根據定位資料重新高亮指定的文字。
+ * @param {object} locationData - 包含所有定位資訊的物件。
+ */
+function reHighlightFromData(locationData) {
+  const { parentSelector, startNodeIndex, startOffset, endOffset } =
+    locationData;
+
+  // 1. 根據選擇器找到父元素
+  const parentElement = document.querySelector(parentSelector);
+  if (!parentElement) {
+    console.error("找不到對應的父元素！");
+    return;
+  }
+
+  // 2. 找到對應的文字節點
+  let targetNode = null;
+  let childIndex = 0;
+  let child = parentElement.firstChild;
+  while (child) {
+    if (childIndex === startNodeIndex) {
+      targetNode = child;
+      break;
+    }
+    child = child.nextSibling;
+    childIndex++;
+  }
+
+  if (!targetNode || targetNode.nodeType !== Node.TEXT_NODE) {
+    console.error("找不到對應的文字節點！");
+    return;
+  }
+
+  // 3. 建立精確的選取範圍
+  const range = document.createRange();
+  range.setStart(targetNode, startOffset);
+  range.setEnd(targetNode, endOffset);
+
+  // 4. 用 span 標籤包裝選取範圍
+  const span = document.createElement("span");
+  span.style.backgroundColor = "yellow";
+  span.style.fontWeight = "bold";
+
+  range.surroundContents(span);
+}
+
+// 使用範例：
+// 假設您從儲存的地方取回了資料
+// const storedData = {
+//   text: 'the',
+//   parentSelector: 'body > p:nth-child(1)',
+//   startNodeIndex: 0,
+//   startOffset: 12,
+//   endOffset: 15
+// };
+// reHighlightFromData(storedData);
