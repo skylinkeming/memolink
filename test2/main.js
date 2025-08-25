@@ -1,5 +1,9 @@
+
+import {highlightText, getSelectedTextChunks } from './highlightUtils.js';
+
 let toolbar = null;
 let currentSelection = null;
+let targetStrings = [];
 
 // 頁面讀取後 取回重點資料
 document.addEventListener("DOMContentLoaded", () => {
@@ -9,6 +13,12 @@ document.addEventListener("DOMContentLoaded", () => {
 // 綁定滑鼠放開事件 如果放開的時候有選取文字 則顯示toolbar
 document.addEventListener("mouseup", () => {
   console.log("mouse up");
+    console.log(getSelectedTextChunks());
+
+  targetStrings = getSelectedTextChunks();
+  targetStrings.forEach(text=>{
+    highlightText(text);
+  });
 
   currentSelection = window.getSelection();
 
