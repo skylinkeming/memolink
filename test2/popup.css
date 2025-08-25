@@ -1,0 +1,43 @@
+     .highlight-toolbar {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        background: white;
+        border: 1px solid #ddd;
+        padding: 4px;
+        display: flex;
+        gap: 4px;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        z-index: 999999;
+      }
+      #colorBtn {
+        width: 20px;
+        height: 20px;
+        background: yellow;
+        cursor: pointer;
+      }
+      #boldBtn {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      #italicBtn {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-style: italic;
+        cursor: pointer;
+      }
+
+      ::highlight(underline-yellow) {
+        color: yellow;
+        text-decoration: underline;
+      }
